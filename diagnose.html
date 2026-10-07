@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>SHK Diagnose Simulator</title>
+<style>
+:root{--bg:#0b1016;--panel:#141b24;--panel2:#1a2430;--line:#344354;--text:#edf3f7;--muted:#9aa9b8;--blue:#2d9bf0;--hot:#ef5b45;--cold:#2999e9;--green:#42d392;--yellow:#f5c451;--red:#ff5d65}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;min-height:100%;overscroll-behavior:none}
+button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}
+.header{height:62px;background:#111821;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 14px;position:sticky;top:0;z-index:20}
+.logo{font-weight:900;letter-spacing:.5px}.sub{font-size:11px;color:var(--muted)}.pill{padding:7px 10px;border:1px solid #3b4c5e;border-radius:999px;background:#1b2631;font-size:12px}
+.wrap{max-width:1100px;margin:auto;padding:10px;display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:10px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.section{padding:12px;border-bottom:1px solid #2a3542}.section:last-child{border:0}
+h2,h3,p{margin:0}h2{font-size:17px}h3{font-size:14px;margin-bottom:9px}.muted{color:var(--muted)}
+.scene{height:720px;position:relative;overflow:hidden;background:linear-gradient(#aebbc5 0 72%,#6b747b 72%);touch-action:none}
+.ceiling{position:absolute;left:0;right:0;top:0;height:32px;background:#737d84}
+.walllabel{position:absolute;top:44px;left:14px;color:#26313a;font-size:11px;font-weight:800;letter-spacing:1px}
+.pipe{position:absolute;border-radius:9px;z-index:1;box-shadow:inset 0 0 0 2px #173b55}
+.pipe.hot{background:#e34e3f}.pipe.cold{background:#268dd4}.pipe.gas{background:#d3a629}.pipe.return{background:#2d77b8}
+.pv{width:13px}.ph{height:13px}
+.pipe.hot.a{left:16%;top:20%;height:43%}.pipe.hot.b{left:16%;top:20%;width:47%}
+.pipe.hot.c{left:63%;top:20%;height:25%}.pipe.hot.d{left:63%;top:45%;width:22%}
+.pipe.return.a{right:15%;top:45%;height:34%}.pipe.return.b{right:15%;top:79%;width:70%}
+.pipe.return.c{left:15%;top:58%;height:21%}
+.pipe.cold.a{right:5%;top:32%;height:48%}.pipe.cold.b{right:5%;top:32%;width:20%}
+.pipe.gas.a{left:49%;top:76%;height:18%}.pipe.gas.b{left:49%;top:94%;width:23%}
+.boiler{position:absolute;left:31%;top:18%;width:34%;height:43%;min-width:185px;background:linear-gradient(90deg,#e8e8e4,#cfd3d3);border:4px solid #353d43;border-radius:12px;z-index:3;box-shadow:0 10px 20px #0004}
+.boilerTop{height:44px;background:#252e36;color:#cbd5dc;padding:9px;text-align:center;font-size:11px;font-weight:800}
+.screen{margin:10px auto;width:72%;height:42px;background:#10232b;border:2px solid #53636c;border-radius:5px;color:#66d8ff;text-align:center;padding:11px;font-size:12px;font-weight:800}
+.heatEx{position:absolute;left:14%;right:14%;top:31%;height:30%;border:5px solid #527080;border-radius:6px;background:repeating-linear-gradient(0deg,#557d8c 0 7px,#aebfc4 7px 13px)}
+.flame{position:absolute;left:44%;bottom:10%;font-size:29px}
+.comp{position:absolute;z-index:8;min-width:42px;min-height:42px;border:3px solid #26333e;box-shadow:0 3px 7px #0006;background:#e8ecec;color:#15202a;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px}
+.comp:active{transform:scale(.94)}
+.comp small{position:absolute;top:100%;margin-top:4px;white-space:nowrap;color:#17232d;font-size:9px;font-weight:900;text-shadow:0 1px #fff}
+.c-pump{left:25%;top:59%;border-radius:50%;width:58px;height:58px}.c-valve{left:55%;top:61%}.c-motor{left:62%;top:42%;width:45px;height:45px;background:#e0ad39}.c-mag{left:72%;top:67%;width:52px;height:70px;background:#cfd5d7;border-radius:20px}.c-filter{left:79%;top:66%;width:42px;height:65px;background:#26333e;color:#e4b938}.c-sv{left:43%;top:68%;background:#d34d42;color:#fff}.c-flow{left:18%;top:48%;background:#66b8e7}.c-sensor{left:56%;top:28%;width:38px;height:38px;border-radius:50%;background:#e2a82f}.c-burner{left:43%;top:52%;width:75px;height:35px;background:#252b31;color:#fff}.c-gas{left:46%;top:83%;background:#d6aa2d}.c-dirt{left:84%;top:50%;background:#68757c;color:#fff}.c-exp{left:9%;top:68%;background:#c53e35;color:#fff;border-radius:50%;width:48px;height:48px}.c-tank{right:6%;top:22%;width:19%;height:26%;min-width:100px;background:linear-gradient(#d7dde0,#a9b5bb);border-radius:10px}.c-tank:after{content:"WW-Speicher";font-size:11px}.c-p2{right:2%;top:75%;border-radius:50%;width:52px;height:52px}.c-gauge{left:57%;top:17%;width:62px;height:62px;border-radius:50%;background:#f2f0e7;font-size:11px}
+.legend{position:absolute;left:10px;bottom:10px;background:#17212aee;border:1px solid #52616d;padding:8px;border-radius:8px;font-size:10px;z-index:9}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px}.dot.h{background:var(--hot)}.dot.c{background:var(--cold)}.dot.g{background:#d6aa2d}
+.statusgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.stat{background:#10161d;border:1px solid #2d3946;border-radius:8px;padding:8px}.stat span{display:block;color:var(--muted);font-size:10px}.stat b{font-size:14px}
+.actions button{width:100%;padding:12px;margin-top:7px;border-radius:9px;background:#263545;text-align:left}.actions button.primary{background:#1677b8}.actions button.warn{background:#8c3b32}
+.log{height:120px;overflow:auto;background:#0b1015;border-radius:8px;padding:8px;font-size:11px;line-height:1.55}
+.meterbox{display:grid;grid-template-columns:1fr 1fr;gap:6px}.meterbtn{padding:12px;border-radius:9px;background:#202d3a;text-align:center;font-size:12px}.meterbtn:active{background:#31516b}
+.overlay{position:fixed;inset:0;background:#000b;z-index:50;display:none;align-items:flex-end}.overlay.open{display:flex}.sheet{background:#141c25;width:100%;border-radius:18px 18px 0 0;border:1px solid #465564;padding:16px;max-height:82vh;overflow:auto}.sheethead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.close{background:#2a3642;border-radius:50%;width:40px;height:40px;font-size:20px}.tag{display:inline-block;padding:5px 8px;border-radius:999px;background:#22313e;font-size:11px;margin:3px 2px}.result{padding:12px;border-radius:9px;background:#0d141b;margin-top:10px}.good{border-left:4px solid var(--green)}.bad{border-left:4px solid var(--red)}
+.bottom{display:none}
+@media(max-width:850px){.wrap{grid-template-columns:1fr}.scene{height:64vh;min-height:500px}.desktopOnly{display:none}}
+@media(max-width:520px){
+ .header{height:58px}.logo{font-size:14px}.sub{font-size:9px}
+ .wrap{padding:7px}.scene{height:57vh;min-height:455px}
+ .boiler{left:28%;top:17%;width:44%;height:47%;min-width:160px}
+ .pipe.hot.a{left:10%;top:20%;height:39%}.pipe.hot.b{left:10%;top:20%;width:44%}
+ .pipe.hot.c{left:54%;top:20%;height:24%}.pipe.hot.d{left:54%;top:44%;width:25%}
+ .pipe.return.a{right:13%;top:44%;height:35%}.pipe.return.b{right:13%;top:79%;width:78%}.pipe.return.c{left:13%;top:58%;height:21%}
+ .pipe.cold.a{right:3%;top:32%;height:47%}.pipe.cold.b{right:3%;top:32%;width:21%}
+ .pipe.gas.a{left:47%;top:76%;height:18%}.pipe.gas.b{left:47%;top:94%;width:26%}
+ .c-tank{right:2%;top:20%;width:23%;height:26%;min-width:78px}
+ .c-pump{left:14%;top:59%;width:50px;height:50px}.c-valve{left:49%;top:61%}.c-motor{left:58%;top:40%}
+ .c-mag{left:66%;top:67%;width:45px;height:62px}.c-filter{left:76%;top:65%;width:37px;height:59px}
+ .c-sv{left:37%;top:68%}.c-flow{left:8%;top:48%}.c-sensor{left:51%;top:28%}.c-burner{left:37%;top:52%}
+ .c-gas{left:43%;top:84%}.c-dirt{left:81%;top:49%}.c-exp{left:4%;top:69%}.c-p2{right:0;top:75%}.c-gauge{left:52%;top:15%;width:54px;height:54px}
+ .legend{font-size:9px}.statusgrid{grid-template-columns:1fr 1fr}
+}
+
+.checklist{display:grid;gap:6px;margin-top:10px}.checkitem{padding:9px;background:#111a22;border:1px solid #2c3a48;border-radius:8px;font-size:11px}.checkitem.done{border-color:#42d392}.scorebar{height:7px;background:#202b35;border-radius:99px;overflow:hidden;margin-top:7px}.scorebar i{display:block;height:100%;background:#42d392;width:0%;transition:.3s}
+
+/* V5 Anlagenlayout: klare Zweiteilung links/rechts mit großzügigem Abstand */
+.scene .comp{min-width:46px;min-height:46px;z-index:10;box-sizing:border-box;}
+.scene .comp small{top:calc(100% + 5px);margin-top:0;line-height:1.1;text-align:center;max-width:86px;pointer-events:none;}
+/* Linke Seite */
+.c-gauge{left:4%;top:9%;}
+.c-flow{left:4%;top:32%;}
+.c-pump{left:7%;top:55%;}
+.c-exp{left:5%;top:76%;}
+.c-burner{left:27%;top:48%;}
+.c-gas{left:27%;top:78%;}
+/* Rechte Seite */
+.c-sensor{right:25%;left:auto;top:9%;}
+.c-motor{right:7%;left:auto;top:31%;}
+.c-tank{right:2%;top:16%;width:18%;height:25%;}
+.c-dirt{right:4%;left:auto;top:47%;}
+.c-filter{right:7%;left:auto;top:59%;}
+.c-mag{right:22%;left:auto;top:64%;}
+.c-sv{right:37%;left:auto;top:64%;}
+.c-p2{right:5%;left:auto;top:76%;}
+.c-valve{right:39%;left:auto;top:76%;}
+.c-tank:after{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;}
+@media(max-width:520px){
+ .scene .comp{min-width:42px;min-height:42px;font-size:12px;}
+ .scene .comp small{font-size:8px;max-width:68px;}
+ .c-gauge{left:3%;top:8%;width:48px;height:48px;}
+ .c-flow{left:3%;top:31%;}
+ .c-pump{left:5%;top:53%;width:48px;height:48px;}
+ .c-exp{left:4%;top:76%;width:48px;height:48px;}
+ .c-burner{left:25%;top:48%;width:68px;height:34px;}
+ .c-gas{left:25%;top:80%;}
+ .c-sensor{right:25%;left:auto;top:8%;width:42px;height:42px;}
+ .c-tank{right:2%;top:17%;width:22%;height:24%;min-width:72px;}
+ .c-motor{right:4%;left:auto;top:31%;width:44px;height:44px;}
+ .c-dirt{right:3%;left:auto;top:46%;}
+ .c-filter{right:4%;left:auto;top:59%;width:38px;height:56px;}
+ .c-mag{right:20%;left:auto;top:64%;width:43px;height:58px;}
+ .c-sv{right:37%;left:auto;top:64%;}
+ .c-p2{right:2%;left:auto;top:77%;width:46px;height:46px;}
+ .c-valve{right:39%;left:auto;top:77%;}
+ .legend{font-size:9px}.statusgrid{grid-template-columns:1fr 1fr}
+}
+/* V7: Bauteilbeschriftungen klarer und kontrastreicher */
+.scene .comp{
+  color:#111b24;
+  background:#f4f7f8;
+  border:2px solid #1e2b35;
+  box-shadow:0 3px 10px rgba(0,0,0,.42),0 0 0 2px rgba(255,255,255,.35);
+}
+.scene .comp small{
+  color:#111b24;
+  background:rgba(255,255,255,.96);
+  border:1px solid #66737d;
+  border-radius:6px;
+  padding:3px 6px;
+  font-size:10px;
+  line-height:1.15;
+  font-weight:900;
+  letter-spacing:.15px;
+  text-shadow:none;
+  box-shadow:0 2px 5px rgba(0,0,0,.3);
+}
+.c-tank:after{
+  background:rgba(255,255,255,.94);
+  color:#17222a;
+  border:1px solid #687680;
+  border-radius:6px;
+  padding:3px 6px;
+  font-weight:900;
+  box-shadow:0 2px 5px rgba(0,0,0,.3);
+}
+.scene{
+  background:linear-gradient(180deg,#d7e0e5 0 72%,#737d84 72%);
+}
+.walllabel{
+  background:rgba(255,255,255,.82);
+  color:#17232d;
+  padding:5px 8px;
+  border:1px solid #697780;
+  border-radius:6px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.legend{
+  background:rgba(15,24,31,.94);
+  font-size:11px;
+  font-weight:700;
+  box-shadow:0 3px 10px rgba(0,0,0,.35);
+}
+@media(max-width:520px){
+  .scene .comp small{font-size:9px;padding:3px 5px;max-width:82px;white-space:normal}
+  .walllabel{font-size:9px;max-width:74%;line-height:1.2}
+  .legend{font-size:9px}
+}
+</style>
+
+<style>
+#trainerBack{position:fixed;left:10px;bottom:10px;z-index:250;
+padding:10px 13px;border-radius:12px;background:#24344e;color:#fff;
+font-weight:800;font-size:13px;border:1px solid #405673;box-shadow:0 4px 18px #0007}
+</style>
+</head>
+<body><button id="trainerBack" onclick="location.replace('index.html')">← Hauptmenü</button>
+<div id="home" style="position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,#1c3447,#090e14 62%);z-index:100;display:flex;align-items:center;justify-content:center;padding:22px">
+ <div style="width:min(430px,100%);text-align:center">
+  <div style="font-size:68px;margin-bottom:5px">🔧</div>
+  <div style="font-size:28px;font-weight:900;letter-spacing:1px">SHK DIAGNOSE</div>
+  <div style="color:#9aa9b8;margin:5px 0 28px">Heizungsanlagen · Fehlersuche · Service</div>
+  <button onclick="startGame()" style="width:100%;padding:16px;border-radius:12px;background:#1677b8;font-weight:900;font-size:17px;margin:5px 0">▶ EINSATZ STARTEN</button>
+  <div style="font-size:11px;color:#70808e;margin-top:20px">Version 2.0 · Pro Mobile Edition</div>
+ </div>
+</div>
+<div id="infoModal" class="overlay"><div class="sheet">
+ <div class="sheethead"><h2 id="infoTitle">Training</h2><button class="close" onclick="closeInfo()">×</button></div>
+ <div id="infoBody"></div>
+</div></div>
+<header class="header">
+ <div><div class="logo">🔧 SHK DIAGNOSE SIMULATOR</div><div class="sub">Heizungsanlage · Fehlersuche · Service</div></div>
+ <div class="pill">AUFTRAG <b id="job">001</b> · ⭐ <b id="score">0</b></div>
+</header>
+
+<main class="wrap">
+<section class="panel">
+ <div class="section"><h2>🏭 Heizungsanlage</h2><p class="muted" style="font-size:11px;margin-top:4px">Tippe auf ein Bauteil für Details und technische Hinweise.</p></div>
+ <div class="scene" id="scene">
+  <div class="ceiling"></div><div class="walllabel">TECHNIKRAUM · HEIZKREIS / WW-BEREITUNG</div>
+  <div class="pipe hot a"></div><div class="pipe hot b"></div><div class="pipe hot c"></div><div class="pipe hot d"></div>
+  <div class="pipe return a"></div><div class="pipe return b"></div><div class="pipe return c"></div>
+  <div class="pipe cold a"></div><div class="pipe cold b"></div>
+  <div class="pipe gas a"></div><div class="pipe gas b"></div>
+  <div class="boiler">
+   <div class="boilerTop">GAS-BRENNWERTKESSEL · 60 kW</div>
+   <div class="screen" id="boilerScreen">BEREIT · 60 °C</div>
+   <div class="heatEx"></div><div class="flame" id="flame">🔥</div>
+  </div>
+  <button class="comp c-gauge" onclick="openComp('gauge')">1.5<br>bar<small>Manometer</small></button>
+  <button class="comp c-sensor" onclick="openComp('sensor')">T<small>Vorlauffühler</small></button>
+  <button class="comp c-burner" onclick="openComp('burner')">🔥 Brenner</button>
+  <button class="comp c-pump" onclick="openComp('pump')">↻<small>HK-Pumpe</small></button>
+  <button class="comp c-valve" onclick="openComp('valve')">⚙<small>3-Wege-Ventil</small></button>
+  <button class="comp c-motor" onclick="openComp('motor')">M<small>Stellantrieb</small></button>
+  <button class="comp c-mag" onclick="openComp('mag')">MAG<small>Ausdehnung</small></button>
+  <button class="comp c-filter" onclick="openComp('filter')">▥<small>Schmutzfänger</small></button>
+  <button class="comp c-sv" onclick="openComp('sv')">⚠<small>Sicherheitsventil</small></button>
+  <button class="comp c-flow" onclick="openComp('flow')">≈<small>Strömungswächter</small></button>
+  <button class="comp c-dirt" onclick="openComp('dirt')">◉<small>Magnetitabscheider</small></button>
+  <button class="comp c-exp" onclick="openComp('exp')">●<small>Membranbehälter</small></button>
+  <button class="comp c-gas" onclick="openComp('gas')">GAS<small>Gasarmatur</small></button>
+  <button class="comp c-tank" onclick="openComp('tank')"></button>
+  <button class="comp c-p2" onclick="openComp('pump2')">↻<small>WW-Pumpe</small></button>
+  <div class="legend"><span class="dot h"></span>Vorlauf &nbsp; <span class="dot c"></span>Rücklauf/Kaltwasser &nbsp; <span class="dot g"></span>Gas</div>
+ </div>
+</section>
+
+<aside class="panel">
+ <div class="section">
+  <h3>📞 Kundenauftrag</h3>
+  <p id="complaint" style="font-size:13px;line-height:1.4"></p>
+ </div>
+ <div class="section">
+  <h3>📊 Anlagenwerte</h3>
+  <div class="statusgrid">
+   <div class="stat"><span>Vorlauf</span><b id="v">--</b></div><div class="stat"><span>Rücklauf</span><b id="r">--</b></div>
+   <div class="stat"><span>Druck</span><b id="p">--</b></div><div class="stat"><span>Brenner</span><b id="b">--</b></div>
+   <div class="stat"><span>Pumpe</span><b id="pu">--</b></div><div class="stat"><span>Fehlercode</span><b id="fc">--</b></div>
+ </div>
+ </div>
+ <div class="section">
+  <h3>🧰 Messungen</h3>
+  <div class="meterbox">
+   <button class="meterbtn" onclick="measure('pressure')">🔵 Manometer</button>
+   <button class="meterbtn" onclick="measure('temp')">🌡️ Temperatur</button>
+   <button class="meterbtn" onclick="measure('flow')">💧 Volumenstrom</button>
+  <button class="meterbtn" onclick="measure('multimeter')">⚡ Multimeter</button></div>
+ </div>
+ <div class="section actions">
+  <h3>🧠 Diagnose</h3>
+  <button onclick="diagnose()">🔍 Diagnose abgeben</button>
+  <button class="primary" onclick="repair()">🔧 Reparatur durchführen</button>
+  <button class="warn" onclick="newJob()">🆕 Neuer Kundenauftrag</button>
+ </div>
+ <div class="section"><h3>📝 Serviceprotokoll</h3><div class="log" id="log"></div></div>
+</aside>
+</main>
+
+<div class="overlay" id="overlay"><div class="sheet">
+ <div class="sheethead"><div><h2 id="sheetTitle">Bauteil</h2><div class="muted" id="sheetSub"></div></div><button class="close" onclick="closeSheet()">×</button></div>
+ <div id="sheetBody"></div>
+</div></div>
+
+<script>
+const components={
+ gauge:{n:"Manometer",s:"Hydraulischer Anlagendruck",t:"Druck",d:"Statischer Anlagendruck. Prüfe Druck, Ausdehnung und mögliche Leckage."},
+ sensor:{n:"Vorlauftemperaturfühler",s:"NTC-Sensor",t:"Sensorik",d:"Der Regler nutzt den NTC zur Vorlauftemperatur. Widerstand und Leitung prüfen."},
+ burner:{n:"Gasbrenner",s:"Brennereinheit",t:"Verbrennung",d:"Zündung, Flammenüberwachung, Gebläse und Gasfreigabe wirken zusammen. Schutzfunktionen niemals überbrücken."},
+ pump:{n:"Heizkreispumpe",s:"Umwälzung",t:"Hydraulik",d:"Versorgung, Drehzahl, Geräusch, Differenzdruck und Rotor prüfen."},
+ valve:{n:"3-Wege-Ventil",s:"Umschaltung Heizung / Warmwasser",t:"Hydraulik",d:"Ventil und Stellantrieb müssen die geforderte Stellung erreichen."},
+ motor:{n:"Stellantrieb",s:"Motorischer Antrieb",t:"Elektrik",d:"Stellrichtung, Endlagen und Versorgung prüfen."},
+ mag:{n:"MAG",s:"Membran-Ausdehnungsgefäß",t:"Druckhaltung",d:"Vordruck nur mit korrekter Prüfmethode kontrollieren."},
+ filter:{n:"Schmutzfänger",s:"Filter im Heizkreis",t:"Hydraulik",d:"Zusetzen führt zu höherer Spreizung und geringerem Volumenstrom."},
+ sv:{n:"Sicherheitsventil",s:"3 bar",t:"Sicherheit",d:"Schützt vor Überdruck. Nicht als reguläres Ablassventil verwenden."},
+ flow:{n:"Strömungswächter",s:"Volumenstromüberwachung",t:"Sensorik",d:"Gibt nur bei ausreichendem Volumenstrom die Freigabe."},
+ dirt:{n:"Magnetit-/Schlammabscheider",s:"Anlagenwasser",t:"Hydraulik",d:"Sammelt Schmutz und magnetische Partikel."},
+ exp:{n:"Membranbehälter",s:"Membran-Ausdehnungsgefäß",t:"Druckhaltung",d:"Übernimmt die Volumenänderung des Heizungswassers. Vordruck und Membran nur mit geeigneter Prüfmethode kontrollieren."},
+ gas:{n:"Gasarmatur",s:"Gasstrecke",t:"Brenner",d:"Regelt/überwacht Gaszufuhr. Arbeiten nur nach Fachregeln und Herstellerangaben."},
+ tank:{n:"Warmwasserspeicher",s:"Brauchwarmwasser",t:"Warmwasser",d:"Temperatur und Ladezustand prüfen."},
+ pump2:{n:"Warmwasser-Ladepumpe",s:"Speicherladung",t:"Hydraulik",d:"Transportiert Heizwasser zum Speicher-Wärmetauscher."}
+};
+const faults=[
+{name:"Anlagendruck zu niedrig",code:"E10",complaint:"Die Heizung verliert Druck. Mehrere Heizkörper werden nicht richtig warm.",v:"61 °C",r:"28 °C",p:"0.6 bar",b:"EIN",pu:"EIN",correct:"pressure",points:150,reading:"0,6 bar",why:"Der Anlagendruck ist zu niedrig. Vor dem Nachfüllen Leckage und MAG prüfen."},
+{name:"Heizkreispumpe blockiert",code:"E25",complaint:"Der Kessel wird heiß, der Rücklauf bleibt kalt. Die Pumpe ist auffällig leise.",v:"84 °C",r:"23 °C",p:"1.6 bar",b:"EIN",pu:"BLOCKIERT",correct:"temp",points:200,reading:"84 °C Vorlauf / 23 °C Rücklauf · Pumpe ohne ausreichende Umwälzung",why:"Elektrische Versorgung ist vorhanden; die Pumpe muss mechanisch geprüft werden."},
+{name:"Vorlauffühler unterbrochen",code:"E40",complaint:"Die Regelung zeigt -40 °C und schaltet die Anlage ab.",v:"-40 °C",r:"34 °C",p:"1.5 bar",b:"AUS",pu:"AUS",correct:"temp",points:200,reading:"-40 °C Anzeige · Sensorwert unplausibel",why:"Die NTC-Leitung ist unterbrochen. Sensor/Leitung prüfen und ersetzen."},
+{name:"Strömungswächter ohne Freigabe",code:"E21",complaint:"Der Brenner startet kurz und geht anschließend wieder auf Störung.",v:"31 °C",r:"30 °C",p:"1.5 bar",b:"START",pu:"EIN",correct:"flow",points:200,reading:"0,18 m³/h · zu gering",why:"Der Volumenstrom reicht nicht für die Freigabe. Pumpe, Filter und Ventile prüfen."},
+{name:"3-Wege-Ventil klemmt",code:"E72",complaint:"Warmwasser funktioniert, die Heizung wird trotz Wärmebedarf nicht warm.",v:"70 °C",r:"69 °C",p:"1.5 bar",b:"EIN",pu:"EIN",correct:"temp",points:220,reading:"Kessel 70 °C / HK 29 °C",why:"Kesselvorlauf ist heiß, der Heizkreis bleibt kalt. Ventilstellung prüfen."},
+{name:"Gasfreigabe fehlt",code:"E01",complaint:"Die Anlage fordert Wärme an, der Brenner zündet jedoch nicht.",v:"24 °C",r:"22 °C",p:"1.5 bar",b:"AUS",pu:"EIN",correct:"temp",points:220,reading:"24 °C Vorlauf · Brenner bleibt AUS trotz Wärmebedarf",why:"Die Freigabekette ist nicht geschlossen. Keine Schutzfunktion überbrücken."},
+{name:"Schmutzfänger zugesetzt",code:"E31",complaint:"Die Anlage hat starke Temperaturspreizung und zu wenig Heizleistung.",v:"78 °C",r:"27 °C",p:"1.5 bar",b:"EIN",pu:"EIN",correct:"flow",points:180,reading:"0,32 m³/h · stark reduziert",why:"Der Volumenstrom ist deutlich zu gering. Filter prüfen/reinigen."},
+{name:"Warmwasser-Ladepumpe ohne Funktion",code:"W12",complaint:"Heizung läuft, aber der Warmwasserspeicher wird nicht geladen.",v:"65 °C",r:"60 °C",p:"1.5 bar",b:"EIN",pu:"EIN",correct:"temp",points:180,reading:"Kessel 65 °C / Speicher 30 °C",why:"Die Speicherladung steigt nicht an. Ladepumpe und Umschaltung prüfen."},
+{name:"MAG-Vordruck fehlerhaft",code:"E55",complaint:"Der Anlagendruck schwankt stark. Nach dem Aufheizen steigt der Druck schnell.",v:"76 °C",r:"42 °C",p:"2.7 bar",b:"EIN",pu:"EIN",correct:"pressure",points:240,reading:"2,7 bar warm · deutliche Schwankung",why:"Druckverhalten deutet auf ein Problem mit Ausdehnungsgefäß/Vordruck hin."},
+{name:"Pumpenversorgung unterbrochen",code:"E26",complaint:"Die Pumpe läuft nicht und die Anlage überhitzt im Wärmeerzeuger.",v:"88 °C",r:"31 °C",p:"1.5 bar",b:"EIN",pu:"AUS",correct:"temp",points:220,reading:"88 °C Vorlauf / 31 °C Rücklauf · Pumpe steht",why:"Keine Versorgung an der Pumpe. Sicherung, Klemme und Ansteuerung prüfen."}
+];
+let fault=null,found=false,score=0,job=1,tries=0;
+function $(id){return document.getElementById(id)}
+function log(x){$("log").innerHTML+="<div>› "+x+"</div>";$("log").scrollTop=$("log").scrollHeight}
+function showSheet(title,sub,body){$("sheetTitle").textContent=title;$("sheetSub").textContent=sub;$("sheetBody").innerHTML=body;$("overlay").classList.add("open")}
+function closeSheet(){$("overlay").classList.remove("open")}
+let selectedComponent=null;
+function openComp(id){
+ const c=components[id];if(!c)return;selectedComponent=id;
+ const testMap={gauge:'pressure',sensor:'multimeter',burner:'multimeter',pump:'multimeter',valve:'temp',motor:'multimeter',mag:'pressure',filter:'flow',sv:'pressure',flow:'flow',dirt:'flow',exp:'pressure',gas:'multimeter',tank:'temp',pump2:'temp'};
+ const test=testMap[id]||'temp';
+ const testNames={pressure:'🔵 Manometer',temp:'🌡️ Temperatur messen',flow:'💧 Volumenstrom messen',multimeter:'⚡ Multimeter'};
+ showSheet(c.n,c.s,`<span class="tag">${c.t}</span><p style="line-height:1.55;margin-top:10px">${c.d}</p><div class="result"><b>Bauteilprüfung</b><br><span class="muted">Wähle eine passende Messung für dieses Bauteil. Der Messwert allein ist nicht automatisch die Diagnose.</span></div><button style="width:100%;padding:13px;border-radius:9px;background:#1677b8;margin-top:12px" onclick="closeSheet();measureForComponent('${test}')">${testNames[test]}</button>`);
+ log("Bauteil geöffnet: "+c.n);
+}
+function measureForComponent(type){
+ if(!selectedComponent){measure(type);return;}
+ measure(type,selectedComponent);
+}
+
+function measure(type,componentId){tries++;const names={pressure:'Manometer',temp:'Temperaturmessung',flow:'Volumenstrommessung',multimeter:'Multimeter'};const componentName=componentId&&components[componentId]?components[componentId].n:'';log('Messung: '+names[type]+(componentName?' an '+componentName:''));let hit=type===fault.correct;let display=fault.reading;
+ if(type==='pressure') display=fault.p;
+ if(type==='temp') display=fault.code==='E72'?'Kessel 70 °C / HK 29 °C':fault.code==='W12'?'Kessel 65 °C / Speicher 30 °C':fault.v+' / '+fault.r;
+ if(type==='flow') display=fault.code==='E31'?'0,32 m³/h · stark reduziert':fault.code==='E21'?'0,18 m³/h · zu gering':'1,42 m³/h';
+ if(hit){found=true;score+=40;showSheet('Messwert passt',names[type],`<div class="result good"><b>✓ ${display}</b><br><br>${fault.why}</div><p style="margin-top:12px">Starker Hinweis auf <b>${fault.name}</b>.</p>`)}else{score=Math.max(0,score-5);showSheet('Noch kein eindeutiger Treffer',names[type],`<div class="result bad"><b>${display}</b><br><br>Der Messwert ist plausibel, erklärt die Störung aber nicht eindeutig.</div><p style="margin-top:12px">Weiter prüfen statt raten.</p>`)}updateScore()}
+function updateScore(){$("score").textContent=score;let xp=Number(localStorage.getItem('shkScore')||0);$("score").title=xp+' XP Karriere'}
+function diagnose(){if(!found){showSheet('Diagnose noch nicht möglich','Fehlersuche','<div class="result bad"><b>Noch kein ausreichender Messhinweis.</b><br><br>Untersuche mehrere mögliche Ursachen und messe gezielt.</div>');return}showSheet('Diagnose abgeben','Kundenauftrag',`<div class="result good"><b>Vermuteter Fehler:</b><br>${fault.name}<br><br><b>Fehlercode:</b> ${fault.code}</div><button style="width:100%;padding:13px;border-radius:9px;background:#1677b8;margin-top:10px" onclick="repair()">🔧 Reparatur bestätigen</button>`)}
+function repair(){if(!found){showSheet('Keine Freigabe','Erst Diagnose durchführen','Ohne ausreichende Diagnose keine Reparatur.');return}score+=fault.points;updateScore();localStorage.setItem('shkScore',String(Number(localStorage.getItem('shkScore')||0)+fault.points));$("flame").textContent='🔥';$("boilerScreen").textContent='BETRIEB · 60 °C';log('✓ '+fault.name+' behoben. Auftrag abgeschlossen.');showSheet('✅ Auftrag abgeschlossen','Anlage wieder in Betrieb',`<div class="result good"><b>${fault.name}</b><br>Fehler behoben und Funktionsprüfung durchgeführt.<br><br><b>+${fault.points} Punkte</b></div><p style="margin-top:10px">Messversuche: ${tries}</p><div class="checklist"><div class="checkitem done">✓ Fehlerursache eingegrenzt</div><div class="checkitem done">✓ Reparatur bestätigt</div><div class="checkitem done">✓ Funktionsprüfung</div></div><button style="width:100%;padding:13px;border-radius:9px;background:#1677b8;margin-top:10px" onclick="closeSheet();newJob()">🆕 Nächsten Auftrag</button>`)}
+function newJob(){fault=faults[Math.floor(Math.random()*faults.length)];found=false;tries=0;$("job").textContent=String(job++).padStart(3,'0');$("complaint").textContent='„'+fault.complaint+'“';$("v").textContent=fault.v;$("r").textContent=fault.r;$("p").textContent=fault.p;$("b").textContent=fault.b;$("pu").textContent=fault.pu;$("fc").textContent=fault.code;$("boilerScreen").textContent=fault.code+' · STÖRUNG';log('Neuer Auftrag: '+fault.code+' – '+fault.name)}
+function startGame(){document.getElementById('home').style.display='none';newJob()}
+function closeInfo(){document.getElementById('infoModal').classList.remove('open')}
+function showTraining(){document.getElementById('infoTitle').textContent='📚 Training';document.getElementById('infoBody').innerHTML='<p style="line-height:1.6">Arbeite wie im echten Kundendienst: Auftrag lesen → Sichtprüfung → Messung → Hypothese → Gegenprüfung → Reparatur → Funktionsprüfung.</p><div class="result" style="margin-top:12px"><b>Messregeln</b><br>Spannung: V · Widerstand: Ω · Durchgang: spannungsfrei · Hydraulik: Druck/Temperatur/Volumenstrom</div>';document.getElementById('infoModal').classList.add('open')}
+function showCareer(){let xp=Number(localStorage.getItem('shkScore')||0),level=Math.floor(xp/500)+1,progress=xp%500;document.getElementById('infoTitle').textContent='🏆 Karriere';document.getElementById('infoBody').innerHTML=`<div class="result good"><b>Techniker-Level ${level}</b><br><span style="font-size:30px">${xp}</span> XP<div class="scorebar"><i style="width:${progress/5}%"></i></div><small>${progress}/500 XP bis zum nächsten Level</small></div><p style="margin-top:12px;line-height:1.6">Mit sauberer Diagnose, wenigen Fehlmessungen und schwierigen Fällen steigt dein Rang.</p>`;document.getElementById('infoModal').classList.add('open')}
+newJob();
+</script>
+</body>
+</html>
